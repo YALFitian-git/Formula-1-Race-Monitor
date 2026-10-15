@@ -41,11 +41,11 @@ st.subheader(
     "Race Date: " + str(current_event['EventDate'].date()) , text_alignment="left"
 )
 
-year= 2026
+
 gp = current_event['EventName']
 event = 'Race'
 
-session_event = fastf1.get_session((year - 1), gp, event)
+session_event = fastf1.get_session((current_year - 1), gp, event)
 session_event.load(
     laps=True,
     telemetry=True,
