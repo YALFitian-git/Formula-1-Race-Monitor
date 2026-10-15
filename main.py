@@ -14,13 +14,11 @@ import time
 from datetime import date #Importing date for fetching the current year's schedules and session times.
 import streamlit as st
 
-
 current_year = date.today().year #Fetch current year
 schedule = fastf1.get_event_schedule(current_year) #Fetch current year's schedule
 current_date = date.today()
 
 current_round = 1
-
 
 while schedule.get_event_by_round(current_round)['EventDate'] < pd.Timestamp(current_date):
     current_round +=1
@@ -31,27 +29,34 @@ st.set_page_config(layout="wide")
 
 st.title("Formula 1 Race Monitor", text_alignment="center")
 
-st.header(
-
-current_event['EventName'], text_alignment="left"
-    
-)
+st.header(current_event['EventName'], text_alignment="left")
 
 st.subheader(
     "Race Date: " + str(current_event['EventDate'].date()) , text_alignment="left"
 )
 
-
 gp = current_event['EventName']
 event = 'Race'
 
-session_event = fastf1.get_session((current_year - 1), gp, event)
+last_session_year = current_year - 1
+
+print(fastf1.get_event_schedule(last_session_year).get_event_by_name(gp)['EventName'])
+
+while True: #Until a match is found, check previous season schedules for the GP's event name.
+    if gp in fastf1.get_event_schedule(last_session_year)['EventName'].values:
+        break
+    else:
+        last_session_year -= 1
+
+st.subheader("Last Time Around", text_alignment="right")
+
+session_event = fastf1.get_session((last_session_year), gp, event)
 session_event.load(
     laps=True,
     telemetry=True,
     weather=False,
     messages=False,
-    ) #Avoid heavy session loading
+    ) #Avoid heavy session loading and load only needed data for plotting track layout and driver positions.
 
 circuit_info = session_event.get_circuit_info()
 lap = session_event.laps.pick_fastest()
@@ -83,8 +88,22 @@ plt.axis('equal')
 for spine in ax.spines.values():
     spine.set_alpha(0)
 
-col1, col2, col3 = st.columns([1, 4, 1])
+col1, col2, col3 = st.columns([1, 4, 0.8])
 
 with col2:
     st.pyplot(plt) #Plot the track layout on the app's page
+
+
+starting_position = [int(x) for x in session_event.results['GridPosition']]
+final_position = [int(x) for x in session_event.results['Position']] #These two variables have to be declared and converted outside of the table since they return float by default.
+
+
+with col3: #Plot last time's driver positions in a table
+    st.table(
+        data={
+        "Driver": session_event.results['Abbreviation'],
+        "Final Position": final_position,
+        "Starting Position": starting_position
+        }
+    )
 
