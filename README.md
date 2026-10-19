@@ -14,5 +14,5 @@ First, you must install the following python packages. They can be installed usi
 * pandas
 
 # Running The Project's UI
-To run the web UI, you must run it via streamlit, like so:
-`streamlit run main.py`
+To run the web UI, you must run it in your terminal via streamlit, like so:
+`python -m streamlit run PATH/TO/FILE/main.py`
