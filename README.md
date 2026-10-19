@@ -1,5 +1,5 @@
 # Formula 1 Race Monitor
-(image/demo.png)
+![App Screenshot](/image/demo.png)
 A simple python app which fetches and displays F1 race info for upcoming races via FastF1.
 This project was inspired by Tom Shaw's F1 Race Replay.
 Disclaimer: this project is not affiliated with or endorsed by Formula 1.
