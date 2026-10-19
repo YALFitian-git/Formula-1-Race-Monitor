@@ -6,20 +6,31 @@
 
 #Possible starting features to implement could include simply fetching and displaying next session times, and possibly a countdown until said times.
 
+from http import client
+
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
 import fastf1 #Starting by importing the fastf1 API.
 import time
-from datetime import date #Importing date for fetching the current year's schedules and session times.
+from datetime import datetime, date, timezone #Importing date for fetching the current year's schedules and session times.
 import streamlit as st
+import livef1
+from livef1.adapters.realtime_client import RealF1Client
+
+def is_live() -> bool:
+    try:
+        client = RealF1Client()
+        return client.is_connected() and client.has_active_session()
+    except Exception:
+        return False
+
 
 current_year = date.today().year #Fetch current year
 schedule = fastf1.get_event_schedule(current_year) #Fetch current year's schedule
 current_date = date.today()
 
 current_round = 1
-
 while schedule.get_event_by_round(current_round)['EventDate'] < pd.Timestamp(current_date):
     current_round +=1
 
@@ -31,12 +42,16 @@ st.title("Formula 1 Race Monitor", text_alignment="center")
 
 st.header(current_event['EventName'], text_alignment="left")
 
-st.subheader(
-    "Race Date: " + str(current_event['EventDate'].date()) , text_alignment="left"
-)
+if is_live():
+    st.subheader(" :red[LIVE:] Session Ongoing",  text_alignment="center")
+else:
+    st.subheader("No Sessions Currently Live", text_alignment="center")
+
+st.subheader("Race Date: " + str(current_event['EventDate'].date()) , text_alignment="left")
+
+event = 'R'
 
 gp = current_event['EventName']
-event = 'Race'
 
 last_session_year = current_year - 1
 
@@ -50,13 +65,10 @@ while True: #Until a match is found, check previous season schedules for the GP'
 
 st.subheader("Last Time Around", text_alignment="right")
 
+print("test")
+
 session_event = fastf1.get_session((last_session_year), gp, event)
-session_event.load(
-    laps=True,
-    telemetry=True,
-    weather=False,
-    messages=False,
-    ) #Avoid heavy session loading and load only needed data for plotting track layout and driver positions.
+session_event.load()
 
 circuit_info = session_event.get_circuit_info()
 lap = session_event.laps.pick_fastest()
