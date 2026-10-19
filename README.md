@@ -6,12 +6,12 @@ Disclaimer: this project is not affiliated with or endorsed by Formula 1.
 
 # Dependencies
 First, you must install the following python packages. They can be installed using pip.
-* streamlit
-* FastF1
-* LiveF1
-* numpy
-* matplotlib
-* pandas
+* streamlit 1.65.0
+* fastf1 3.8.3
+* livef1 1.2.11
+* numpy 2.5.4
+* matplotlib 3.11.2
+* pandas 2.3.3
 
 # Running The Project's UI
 To run the web UI, you must run it in your terminal via streamlit, like so:
